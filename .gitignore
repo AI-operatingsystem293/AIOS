@@ -1,0 +1,6 @@
+target/
+*.zip
+*.so
+plugins/*.so
+
+**/*.rs.bk

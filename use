@@ -1,0 +1,54 @@
+
+pub struct Dispatcher<'a> {
+    registry: &'a AgentRegistry,
+}
+
+impl<'a> Dispatcher<'a> {
+    pub fn new(registry: &'a AgentRegistry) -> Self {
+        Self { registry }
+    }
+
+    pub fn dispatch(&self, input: &str) -> bool {
+        let command = input.trim();
+
+        if command == "help" {
+            Self::help();
+            return true;
+        }
+
+        if command == "version" {
+            Self::version();
+            return true;
+        }
+
+        if command == "agents" {
+            self.registry.list_agents();
+            return true;
+        }
+
+        if let Some(text) = command.strip_prefix("echo ") {
+            match self.registry.execute("echo", text) {
+                Some(result) => println!("{}", result), None => 
+                println!("Echo Agent not found."),
+            }
+            return true;
+        }
+        if command == "exit" { println!("Shutting down AIOS..."); 
+            return false;
+        }
+        if command.is_empty() { return true;
+        }
+        println!("Unknown command."); true
+    }
+    fn help() { println!(); println!("Available Commands"); 
+        println!("------------------"); println!("help"); 
+        println!("version"); println!("agents"); println!("echo 
+        <text>"); println!("exit"); println!();
+    }
+    fn version() { println!(); println!("AIOS Intelligence Kernel"); 
+        println!("Version : v0.0.1"); println!("Codename: Genesis"); 
+        println!();
+    }
+}
+
+

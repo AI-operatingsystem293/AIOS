@@ -1,0 +1,9 @@
+[package]
+name = "aios"
+version = "0.0.1"
+edition = "2021"
+
+[dependencies]
+toml = "0.8"
+libloading = "0.8"
+serde = { version = "1", features = ["derive"] }
