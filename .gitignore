@@ -1,6 +1,13 @@
-target/
-*.zip
-*.so
-plugins/*.so
-
+ target/
 **/*.rs.bk
+Cargo.lock
+
+.env
+.DS_Store
+
+*.so
+!plugins/*.so
+
+
+
+
