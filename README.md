@@ -340,6 +340,17 @@ That is the long-term vision of AIOS.
 
 ---
 
+We are looking for contributors.
+
+Current priorities:
+- Web Agent
+- Terminal Agent
+- Scheduler
+- Documentation
+- Tests
+
+Every contributor becomes part of the AIOS Founding Contributors list.
+
 # License
 
 MIT License
