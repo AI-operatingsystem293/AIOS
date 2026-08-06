@@ -215,43 +215,43 @@ impl<'a> Dispatcher<'a> {
 
 
             _ => {
+ 
+              let registry = self.kernel.registry();
 
+              let result = {
+                 let mut registry =
+                     registry
+                        .lock()
+                        .unwrap();
 
-                let request =
-                    MasterRequest::new(
-                        input
-                    );
+                 registry.execute_command(
+                     command,
+                     args,
+                 )
+              };
 
+              if let Some(output) = result {
 
+              println!("{}", output);
 
-                let response =
-                    self.kernel
-                    .execute_master(
-                        request,
-                    );
+              return true;
 
+              }
 
+              let request =
+                  MasterRequest::new(input);
 
-                println!();
+              let response =
+                  self.kernel.execute_master(request);
 
+              println!();
+              println!("{}", response.output);
 
-                println!(
-                    "{}",
-                    response.output
-                );
+              true
 
-
-                true
-
-            }
-
-        }
-
-    }
-
-
-
-
+           }
+       }
+   }
 
     fn memory_command(
         &self,

@@ -78,9 +78,21 @@ impl PluginManager {
                             );
 
 
-                            agent_registry.register(
-                                agent
+                            let manifest = agent.manifest();
+
+                            println!(
+                                "Loaded Agent: {}",
+                                manifest.name
                             );
+
+                            for capability in &manifest.capabilities {
+                                println!(
+                                "  Capability: {}",
+                                capability
+                            );
+                        }
+
+                            agent_registry.register(agent);
 
 
                             println!(

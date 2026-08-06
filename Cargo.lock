@@ -4,12 +4,18 @@ version = 4
 
 [[package]]
 name = "aios"
-version = "0.0.1"
+version = "0.6.0"
 dependencies = [
+ "aios-sdk",
  "libloading",
  "serde",
  "toml",
 ]
+
+[[package]]
+name = "aios-sdk"
+version = "0.1.0"
+source = "git+https://github.com/AI-operatingsystem293/aios-sdk.git#6cd63d7343fcdbd14b49272e4685f3a21f547245"
 
 [[package]]
 name = "cfg-if"

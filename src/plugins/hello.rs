@@ -6,7 +6,6 @@ use crate::{
         response::AgentResponse,
     },
     sdk::plugin::AgentPlugin,
-    plugin::manifest::PluginManifest,
 };
 
 
@@ -96,22 +95,16 @@ impl AgentPlugin for HelloPlugin {
 
 
     fn manifest(
-        &self,
-    ) -> PluginManifest {
+       &self,
+    ) -> AgentManifest {
 
-        PluginManifest::new(
-            "Hello Plugin",
-            "1.0.0",
-            "AIOS",
-            "Example AIOS plugin",
-            vec![
-                "hello"
-            ],
-        )
-
+       AgentManifest::new()
+           .name("Hello Plugin")
+           .version("1.0.0")
+           .author("AIOS")
+           .description("Example AIOS plugin")
+           .capability("hello")
     }
-
-
 
     fn create(
         &self,
