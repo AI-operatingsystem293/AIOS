@@ -20,8 +20,18 @@ jobs:
       - name: Build AIOS
         run: cargo build --release
 
-      - name: Upload EXE
+      - name: Create Windows package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist
+          Copy-Item target/release/aios.exe dist/aios.exe
+          if (Test-Path README.md) {
+            Copy-Item README.md dist/README.md
+          }
+          Compress-Archive -Path dist/* -DestinationPath AIOS-Windows.zip -Force
+
+      - name: Upload Windows ZIP
         uses: actions/upload-artifact@v4
         with:
-          name: aios-windows
-          path: target/release/*.exe
+          name: AIOS-Windows
+          path: AIOS-Windows.zip
