@@ -34,84 +34,58 @@ impl PluginManager {
     }
 
 
+
     pub fn load_dynamic_plugins(
-        &mut self,
-        agent_registry: &mut AgentRegistry,
-    ) {
+    &mut self,
+    agent_registry: &mut AgentRegistry,
+) {
+    let discovered = std::fs::read_dir("plugins");
 
-        let discovered =
-            std::fs::read_dir("plugins");
+    let Ok(entries) = discovered else {
+        println!("Plugin directory not found.");
+        return;
+    };
 
+    for entry in entries.flatten() {
+        let path = entry.path();
 
-        let Ok(entries) = discovered else {
-            return;
+        let is_plugin = match path.extension().and_then(|e| e.to_str()) {
+            Some("so") => true,
+            Some("dll") => true,
+            Some("dylib") => true,
+            _ => false,
         };
 
-
-        for entry in entries.flatten() {
-
-            let path = entry.path();
-
-
-            if let Some(extension) =
-                path.extension()
-            {
-
-                if extension == "so" {
-
-                    println!(
-                        "Loading dynamic plugin: {:?}",
-                        path
-                    );
-
-
-                    unsafe {
-
-                        if let Some((library, agent)) =
-                            self.loader.load(
-                                path.to_str().unwrap()
-                            )
-                        {
-
-                            agent_registry.keep_library(
-                                library
-                            );
-
-
-                            let manifest = agent.manifest();
-
-                            println!(
-                                "Loaded Agent: {}",
-                                manifest.name
-                            );
-
-                            for capability in &manifest.capabilities {
-                                println!(
-                                "  Capability: {}",
-                                capability
-                            );
-                        }
-
-                            agent_registry.register(agent);
-
-
-                            println!(
-                                "✓ Dynamic agent loaded"
-                            );
-
-                        }
-
-                    }
-
-                }
-
-            }
-
+        if !is_plugin {
+            continue;
         }
 
+        println!("Loading dynamic plugin: {:?}", path);
+
+        unsafe {
+            if let Some((library, agent)) =
+                self.loader.load(path.to_str().unwrap())
+            {
+                agent_registry.keep_library(library);
+
+                let manifest = agent.manifest();
+
+                println!("Loaded Agent: {}", manifest.name);
+
+                for capability in &manifest.capabilities {
+                    println!("  Capability: {}", capability);
+                }
+
+                agent_registry.register(agent);
+
+                println!("✓ Dynamic agent loaded");
+            } else {
+                println!("✗ Failed to load plugin: {:?}", path);
+            }
+        }
     }
-
-
+}  
+                           
 
     pub fn register_plugin(
         &mut self,
