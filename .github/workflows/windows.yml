@@ -20,15 +20,31 @@ jobs:
       - name: Build AIOS
         run: cargo build --release
 
-      - name: Create Windows package
-        shell: pwsh
+      - name: Install Inno Setup
+        shell: powershell
+        run: choco install innosetup --yes --no-progress
+
+      - name: Build Windows installer
+        shell: powershell
         run: |
           New-Item -ItemType Directory -Force -Path dist
-          Copy-Item target/release/aios.exe dist/aios.exe
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
+
+      - name: Create Windows ZIP
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force -Path package
+          Copy-Item target/release/aios.exe package/aios.exe
           if (Test-Path README.md) {
-            Copy-Item README.md dist/README.md
+            Copy-Item README.md package/README.md
           }
-          Compress-Archive -Path dist/* -DestinationPath AIOS-Windows.zip -Force
+          Compress-Archive -Path package/* -DestinationPath AIOS-Windows.zip -Force
+
+      - name: Upload Windows installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: AIOS-Setup-Windows
+          path: dist/AIOS-Setup.exe
 
       - name: Upload Windows ZIP
         uses: actions/upload-artifact@v4
