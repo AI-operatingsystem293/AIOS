@@ -4,7 +4,7 @@
 #define MyAppExeName "aios.exe"
 
 [Setup]
-AppId={{AIOS-0.1.0}
+AppId={{AIOS-0.1.0}}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
@@ -24,6 +24,4 @@ Name: "{group}\AIOS"; Filename: "{app}\aios.exe"
 Name: "{autodesktop}\AIOS"; Filename: "{app}\aios.exe"
 
 [Run]
-Filename: "{app}\aios.exe"
-Description: "Start AIOS"
-Flags: nowait postinstall skipifsilent
+Filename: "{app}\aios.exe"; Description: "Start AIOS"; Flags: nowait postinstall skipifsilent
