@@ -1,7 +1,4 @@
-use crate::capability::{
-    provider::Provider,
-    score::CapabilityScore,
-};
+use crate::capability::{provider::Provider, score::CapabilityScore};
 
 pub struct ProviderRegistry {
     providers: Vec<Provider>,
@@ -14,10 +11,7 @@ impl ProviderRegistry {
         }
     }
 
-    pub fn register(
-        &mut self,
-        provider: Provider,
-    ) {
+    pub fn register(&mut self, provider: Provider) {
         self.providers.push(provider);
     }
 
@@ -25,95 +19,65 @@ impl ProviderRegistry {
         &self.providers
     }
 
-    pub fn providers_for(
-        &self,
-        capability: &str,
-    ) -> Vec<&Provider> {
-
+    pub fn providers_for(&self, capability: &str) -> Vec<&Provider> {
         self.providers
             .iter()
-            .filter(|p| {
-                p.capability == capability
-            })
+            .filter(|p| p.capability == capability)
             .collect()
     }
 
-    pub fn best_provider(
-        &self,
-        capability: &str,
-    ) -> Option<&Provider> {
-
+    pub fn best_provider(&self, capability: &str) -> Option<&Provider> {
         self.providers
             .iter()
-            .filter(|p| {
-                p.capability == capability
-                    && p.healthy
-            })
-            .max_by_key(|p| {
-                CapabilityScore::calculate(p)
-            })
+            .filter(|p| p.capability == capability && p.healthy)
+            .max_by_key(|p| CapabilityScore::calculate(p))
     }
 
-    pub fn mark_success(
-        &mut self,
-        agent: &str,
-    ) {
+    pub fn best_provider_for_request(&self, request: &str) -> Option<&Provider> {
+        crate::capability::resolver::CapabilityResolver::new().resolve_request(self, request)
+    }
 
-        if let Some(provider) =
-            self.providers
-                .iter_mut()
-                .find(|p| p.agent_id == agent)
-        {
+    pub fn backup_provider(
+    &self,
+    capability: &str,
+    failed_agent: &str,
+) -> Option<&Provider> {
+    self.providers
+        .iter()
+        .filter(|p| {
+            p.capability == capability
+                && p.healthy
+                && p.agent_id != failed_agent
+        })
+        .max_by_key(|p| CapabilityScore::calculate(p))
+}
+
+    pub fn mark_success(&mut self, agent: &str) {
+        if let Some(provider) = self.providers.iter_mut().find(|p| p.agent_id == agent) {
             provider.success_count += 1;
         }
     }
 
-    pub fn mark_failure(
-        &mut self,
-        agent: &str,
-    ) {
-
-        if let Some(provider) =
-            self.providers
-                .iter_mut()
-                .find(|p| p.agent_id == agent)
-        {
+    pub fn mark_failure(&mut self, agent: &str) {
+        if let Some(provider) = self.providers.iter_mut().find(|p| p.agent_id == agent) {
             provider.failure_count += 1;
         }
     }
 
     pub fn list(&self) {
-
         println!();
         println!("========== PROVIDERS ==========");
 
         for provider in &self.providers {
+            println!("{} [{}]", provider.agent_id, provider.capability,);
 
-            println!(
-                "{} [{}]",
-                provider.agent_id,
-                provider.capability,
-            );
+            println!(" Score   : {}", CapabilityScore::calculate(provider),);
 
-            println!(
-                " Score   : {}",
-                CapabilityScore::calculate(provider),
-            );
+            println!(" Success : {}", provider.success_count,);
 
-            println!(
-                " Success : {}",
-                provider.success_count,
-            );
+            println!(" Failure : {}", provider.failure_count,);
 
-            println!(
-                " Failure : {}",
-                provider.failure_count,
-            );
-
-            println!(
-                " Healthy : {}",
-                provider.healthy,
-            );
+            println!(" Healthy : {}", provider.healthy,);
 
             println!();
         }

@@ -11,10 +11,7 @@ impl ServiceManager {
         }
     }
 
-    pub fn register(
-        &mut self,
-        service: Box<dyn Service>,
-    ) {
+    pub fn register(&mut self, service: Box<dyn Service>) {
         self.services.push(service);
     }
 
@@ -26,11 +23,7 @@ impl ServiceManager {
         for service in self.services.iter_mut() {
             service.start();
 
-            println!(
-                "✓ {} [{}]",
-                service.name(),
-                service.status(),
-            );
+            println!("✓ {} [{}]", service.name(), service.status(),);
         }
 
         println!();
@@ -48,11 +41,7 @@ impl ServiceManager {
         println!("------------------");
 
         for service in &self.services {
-            println!(
-                "{} [{}]",
-                service.name(),
-                service.status(),
-            );
+            println!("{} [{}]", service.name(), service.status(),);
         }
 
         println!();

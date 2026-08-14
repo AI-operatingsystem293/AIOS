@@ -1,7 +1,4 @@
-use super::{
-    event::Event,
-    listener::EventListener,
-};
+use super::{event::Event, listener::EventListener};
 
 pub struct EventBus {
     listeners: Vec<Box<dyn EventListener>>,
@@ -14,28 +11,18 @@ impl EventBus {
         }
     }
 
-    pub fn subscribe(
-        &mut self,
-        listener: Box<dyn EventListener>,
-    ) {
+    pub fn subscribe(&mut self, listener: Box<dyn EventListener>) {
         self.listeners.push(listener);
     }
 
-    pub fn publish(
-        &mut self,
-        event: Event,
-    ) {
+    pub fn publish(&mut self, event: Event) {
         for listener in self.listeners.iter_mut() {
             listener.on_event(&event);
         }
     }
 
     // Compatibility for old code
-    pub fn emit(
-        &mut self,
-        name: &str,
-        data: &str,
-    ) {
+    pub fn emit(&mut self, name: &str, data: &str) {
         let event = match name {
             "kernel.boot" => Event::KernelStarted,
 
@@ -67,9 +54,6 @@ impl EventBus {
     }
 
     pub fn list(&self) {
-        println!(
-            "EventBus has {} listener(s).",
-            self.listeners.len()
-        );
+        println!("EventBus has {} listener(s).", self.listeners.len());
     }
 }

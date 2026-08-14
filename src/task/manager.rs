@@ -1,7 +1,4 @@
-use super::{
-    status::TaskStatus,
-    task::Task,
-};
+use super::{status::TaskStatus, task::Task};
 
 pub struct TaskManager {
     pub tasks: Vec<Task>,
@@ -18,16 +15,16 @@ impl TaskManager {
 
     pub fn completed(&self) -> usize {
         self.tasks
-           .iter()
-           .filter(|t| matches!(t.status, TaskStatus::Completed))
-           .count()
+            .iter()
+            .filter(|t| matches!(t.status, TaskStatus::Completed))
+            .count()
     }
 
     pub fn failed(&self) -> usize {
         self.tasks
-           .iter()
-           .filter(|t| matches!(t.status, TaskStatus::Failed))
-           .count()
+            .iter()
+            .filter(|t| matches!(t.status, TaskStatus::Failed))
+            .count()
     }
 
     pub fn create(
@@ -37,73 +34,46 @@ impl TaskManager {
         input: String,
         priority: u8,
     ) -> u64 {
-
         let id = self.next_id;
 
         self.next_id += 1;
 
-        self.tasks.push(Task::new(
-            id,
-            parent,
-            command,
-            input,
-            priority,
-        ));
+        self.tasks
+            .push(Task::new(id, parent, command, input, priority));
 
         id
     }
 
-    pub fn assign(
-        &mut self,
-        id: u64,
-        agent: String,
-    ) {
-        if let Some(task) =
-            self.tasks.iter_mut().find(|t| t.id == id)
-        {
+    pub fn assign(&mut self, id: u64, agent: String) {
+        if let Some(task) = self.tasks.iter_mut().find(|t| t.id == id) {
             task.assigned_agent = Some(agent);
         }
     }
 
-    pub fn enqueue(
-        &mut self,
-        tasks: Vec<Task>,
-    ) {
-
-    for task in tasks {
-
-         self.tasks.push(task);
-      }
-   }
+    pub fn enqueue(&mut self, tasks: Vec<Task>) {
+        for task in tasks {
+            self.tasks.push(task);
+        }
+    }
 
     pub fn start(&mut self, id: u64) {
-        if let Some(task) =
-            self.tasks.iter_mut().find(|t| t.id == id)
-        {
+        if let Some(task) = self.tasks.iter_mut().find(|t| t.id == id) {
             task.status = TaskStatus::Running;
         }
     }
 
-    pub fn complete(
-        &mut self,
-        id: u64,
-        result: String,
-    ) {
-        if let Some(task) =
-            self.tasks.iter_mut().find(|t| t.id == id)
-        {
+    pub fn complete(&mut self, id: u64, result: String) {
+        if let Some(task) = self.tasks.iter_mut().find(|t| t.id == id) {
             task.status = TaskStatus::Completed;
             task.result = Some(result);
         }
     }
 
     pub fn list(&self) {
-
         println!();
         println!("================ TASKS ================");
 
         for task in &self.tasks {
-
             println!("Task #{}", task.id);
 
             println!(" Command  : {}", task.command);
@@ -114,9 +84,7 @@ impl TaskManager {
 
             println!(
                 " Agent    : {}",
-                task.assigned_agent
-                    .as_deref()
-                    .unwrap_or("Unassigned")
+                task.assigned_agent.as_deref().unwrap_or("Unassigned")
             );
 
             if let Some(result) = &task.result {

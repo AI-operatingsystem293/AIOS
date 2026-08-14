@@ -14,8 +14,7 @@ impl MemoryService {
     }
 
     pub fn set(&mut self, key: &str, value: &str) {
-        self.store
-            .insert(key.to_string(), value.to_string());
+        self.store.insert(key.to_string(), value.to_string());
     }
 
     pub fn get(&self, key: &str) -> Option<&String> {
@@ -60,8 +59,7 @@ impl MemoryService {
 
         for line in text.lines() {
             if let Some((k, v)) = line.split_once('=') {
-                self.store
-                    .insert(k.to_string(), v.to_string());
+                self.store.insert(k.to_string(), v.to_string());
             }
         }
 

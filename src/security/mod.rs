@@ -1,2 +1,2 @@
-pub mod permission;
 pub mod manager;
+pub mod permission;

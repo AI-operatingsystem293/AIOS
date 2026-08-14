@@ -23,10 +23,7 @@ impl Plan {
         self.tasks.iter().find(|t| t.id == id)
     }
 
-    pub fn task_mut(
-        &mut self,
-        id: u64,
-    ) -> Option<&mut PlanTask> {
+    pub fn task_mut(&mut self, id: u64) -> Option<&mut PlanTask> {
         self.tasks.iter_mut().find(|t| t.id == id)
     }
 
@@ -37,10 +34,7 @@ impl Plan {
             .collect()
     }
 
-    pub fn children(
-        &self,
-        id: u64,
-    ) -> Vec<&PlanTask> {
+    pub fn children(&self, id: u64) -> Vec<&PlanTask> {
         self.tasks
             .iter()
             .filter(|t| t.dependencies.contains(&id))
@@ -58,18 +52,11 @@ impl Plan {
             .collect()
     }
 
-    pub fn store_output(
-        &mut self,
-        task_id: u64,
-        output: String,
-    ) {
+    pub fn store_output(&mut self, task_id: u64, output: String) {
         self.outputs.insert(task_id, output);
     }
 
-    pub fn output(
-        &self,
-        task_id: u64,
-    ) -> Option<&String> {
+    pub fn output(&self, task_id: u64) -> Option<&String> {
         self.outputs.get(&task_id)
     }
 
@@ -94,7 +81,6 @@ impl Plan {
         println!("========== EXECUTION PLAN ==========");
 
         for task in &self.tasks {
-
             println!("Task #{}", task.id);
 
             println!(" Name         : {}", task.name);

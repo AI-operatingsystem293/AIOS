@@ -1,6 +1,5 @@
 #[derive(Clone, Debug)]
 pub enum InputType {
-
     Text,
 
     Number,

@@ -2,9 +2,7 @@ use std::io::{self, Write};
 
 use crate::command::dispatcher::Dispatcher;
 
-pub fn start(
-    mut dispatcher: Dispatcher,
-) {
+pub fn start(mut dispatcher: Dispatcher) {
     loop {
         print!("AIOS> ");
         io::stdout().flush().unwrap();

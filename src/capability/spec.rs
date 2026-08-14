@@ -1,7 +1,4 @@
-use super::{
-    input::InputType,
-    output::OutputType,
-};
+use super::{input::InputType, output::OutputType};
 
 #[derive(Clone, Debug)]
 pub struct CapabilitySpec {
@@ -18,12 +15,7 @@ pub struct CapabilitySpec {
 }
 
 impl CapabilitySpec {
-    pub fn new(
-        name: &str,
-        description: &str,
-        input: InputType,
-        output: OutputType,
-    ) -> Self {
+    pub fn new(name: &str, description: &str, input: InputType, output: OutputType) -> Self {
         Self {
             name: name.to_string(),
             description: description.to_string(),
@@ -35,18 +27,12 @@ impl CapabilitySpec {
         }
     }
 
-    pub fn permission(
-        mut self,
-        permission: &str,
-    ) -> Self {
+    pub fn permission(mut self, permission: &str) -> Self {
         self.permissions.push(permission.to_string());
         self
     }
 
-    pub fn agent(
-        mut self,
-        agent: &str,
-    ) -> Self {
+    pub fn agent(mut self, agent: &str) -> Self {
         self.agents.push(agent.to_string());
         self
     }

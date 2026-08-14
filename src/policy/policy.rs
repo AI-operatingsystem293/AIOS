@@ -7,7 +7,6 @@ impl PolicyEngine {
 
     pub fn allow(&self, command: &str) -> bool {
         match command {
-
             // Dangerous commands
             "delete" => false,
             "format" => false,

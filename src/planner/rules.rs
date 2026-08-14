@@ -1,223 +1,106 @@
 use crate::{
+    capability::registry::ProviderRegistry,
     planner::{
         goal::Goal,
         plan::Plan,
-        reasoner::Reasoner,
+        reasoner::{PlanningDecision, Reasoner},
         rule::PlanningRule,
         task::PlanTask,
     },
     task::task::Task,
 };
 
-
 pub struct DefaultRule {
-
     reasoner: Reasoner,
-
 }
-
 
 impl DefaultRule {
-
     pub fn new() -> Self {
-
         Self {
-
             reasoner: Reasoner::new(),
-
         }
-
     }
 
+    fn decisions(
+        &self,
+        goal: &Goal,
+        registry: &ProviderRegistry,
+    ) -> Vec<PlanningDecision> {
+        self.reasoner.reason(
+            goal,
+            registry.providers(),
+        )
+    }
 }
 
-
-
 impl PlanningRule for DefaultRule {
-
-
-    fn name(
-        &self,
-    ) -> &str {
-
-        "default"
-
+    fn name(&self) -> &str {
+        "capability-driven"
     }
 
-
-
-    fn matches(
-        &self,
-        _goal: &Goal,
-    ) -> bool {
-
+    fn matches(&self, _goal: &Goal) -> bool {
         true
-
     }
 
-
-
-    // Legacy planner
-    fn expand(
-        &self,
-        goal: &Goal,
-    ) -> Vec<Task> {
-
-
-        let text =
-            goal.description
-                .to_lowercase();
-
-
-        let mut tasks =
-            Vec::new();
-
-
-        let mut id: u64 = 1;
-
-
-        let mut previous: Option<u64> =
-            None;
-
-
-
-        //
-        // Dynamic fallback task generation
-        //
-        // No fixed "add", "multiply"
-        // rules here.
-        //
-
-        let words: Vec<&str> =
-            goal.description
-                .split_whitespace()
-                .collect();
-
-
-
-        if !words.is_empty() {
-
-
-            let command =
-                words[0].to_string();
-
-
-            let input =
-                words
-                    .iter()
-                    .skip(1)
-                    .cloned()
-                    .collect::<Vec<_>>()
-                    .join(" ");
-
-
-
-            tasks.push(
-                Task::new(
-                    id,
-                    previous,
-                    command,
-                    input,
-                    5,
-                )
-            );
-
-
-            previous =
-                Some(id);
-
-
-            id += 1;
-
-        }
-
-
-
-        //
-        // Verification task
-        //
-
-        if !tasks.is_empty() {
-
-
-            tasks.push(
-                Task::new(
-                    id,
-                    previous,
-                    "verify".to_string(),
-                    "".to_string(),
-                    1,
-                )
-            );
-
-        }
-
-
-
-        //
-        // Empty goal fallback
-        //
-
-        if tasks.is_empty() {
-
-
-            tasks.push(
-                Task::new(
-                    1,
-                    None,
-                    "answer".to_string(),
-                    text,
-                    1,
-                )
-            );
-
-        }
-
-
-        tasks
-
+    fn expand(&self, goal: &Goal) -> Vec<Task> {
+        vec![
+            Task::new(
+                1,
+                None,
+                "general_reasoning".to_string(),
+                goal.description.clone(),
+                1,
+            ),
+        ]
     }
 
-
-
-    // Workflow planner
-    fn build_plan(
+    fn build_plan_with_registry(
         &self,
         goal: &Goal,
+        registry: &ProviderRegistry,
     ) -> Plan {
+        let decisions = self.decisions(goal, registry);
 
+        let mut plan = Plan::new();
 
-        let mut plan =
-            Plan::new();
-
-
-
-        let tasks =
-            self.expand(goal);
-
-
-
-        for task in tasks {
-
-
-            plan.add_task(
-
-                PlanTask::new(
-                    task.id,
-                    &task.command,
-                    &task.command,
-                    &task.input,
-                    task.priority,
-                )
-
-            );
-
+        if decisions.is_empty() {
+            return plan;
         }
 
+        for (index, decision) in decisions.into_iter().enumerate() {
+            let id = (index + 1) as u64;
 
+            plan.add_task(PlanTask::new(
+                id,
+                &decision.capability,
+                &decision.capability,
+                &decision.input,
+                decision.priority,
+            ));
+        }
 
         plan
-
     }
 
+    fn build_plan(&self, goal: &Goal) -> Plan {
+        let mut plan = Plan::new();
+
+        let task = Task::new(
+            1,
+            None,
+            "general_reasoning".to_string(),
+            goal.description.clone(),
+            1,
+        );
+
+        plan.add_task(PlanTask::new(
+            task.id,
+            &task.command,
+            &task.command,
+            &task.input,
+            task.priority,
+        ));
+
+        plan
+    }
 }

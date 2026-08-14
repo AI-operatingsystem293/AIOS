@@ -31,13 +31,7 @@ pub struct PlanTask {
 }
 
 impl PlanTask {
-    pub fn new(
-        id: u64,
-        name: &str,
-        capability: &str,
-        input: &str,
-        priority: u8,
-    ) -> Self {
+    pub fn new(id: u64, name: &str, capability: &str, input: &str, priority: u8) -> Self {
         Self {
             id,
             name: name.to_string(),
@@ -52,44 +46,27 @@ impl PlanTask {
         }
     }
 
-    pub fn depends_on(
-        &mut self,
-        task_id: u64,
-    ) {
+    pub fn depends_on(&mut self, task_id: u64) {
         if !self.dependencies.contains(&task_id) {
             self.dependencies.push(task_id);
         }
     }
 
-    pub fn add_child(
-        &mut self,
-        task_id: u64,
-    ) {
+    pub fn add_child(&mut self, task_id: u64) {
         if !self.children.contains(&task_id) {
             self.children.push(task_id);
         }
     }
 
-    pub fn set_parent(
-        &mut self,
-        parent: u64,
-    ) {
+    pub fn set_parent(&mut self, parent: u64) {
         self.parent = Some(parent);
     }
 
-    pub fn ready(
-        &self,
-        completed: &[u64],
-    ) -> bool {
-        self.dependencies
-            .iter()
-            .all(|id| completed.contains(id))
+    pub fn ready(&self, completed: &[u64]) -> bool {
+        self.dependencies.iter().all(|id| completed.contains(id))
     }
 
-    pub fn complete(
-        &mut self,
-        output: String,
-    ) {
+    pub fn complete(&mut self, output: String) {
         self.completed = true;
         self.output = Some(output);
     }

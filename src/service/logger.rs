@@ -6,9 +6,7 @@ pub struct LoggerService {
 
 impl LoggerService {
     pub fn new() -> Self {
-        Self {
-            running: false,
-        }
+        Self { running: false }
     }
 }
 

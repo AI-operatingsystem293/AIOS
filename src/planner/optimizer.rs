@@ -7,10 +7,7 @@ impl PlanOptimizer {
         Self
     }
 
-    pub fn optimize(
-        &self,
-        _tasks: &mut Vec<Task>,
-    ) {
+    pub fn optimize(&self, _tasks: &mut Vec<Task>) {
         // Future:
         // Remove duplicate tasks.
         // Merge compatible tasks.

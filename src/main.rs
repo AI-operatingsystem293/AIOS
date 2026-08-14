@@ -1,25 +1,25 @@
-pub mod kernel;
-pub mod sdk;
-pub mod cli;
 pub mod agents;
+pub mod aggregator;
+pub mod capability;
+pub mod cli;
 pub mod command;
+pub mod devtools;
+pub mod event;
+pub mod kernel;
 pub mod master;
-pub mod task;
-pub mod policy;
+pub mod memory;
+pub mod planner;
 pub mod plugin;
 pub mod plugins;
-pub mod event;
-pub mod service;
-pub mod capability;
-pub mod planner;
-pub mod security;
-pub mod memory;
-pub mod aggregator;
-pub mod verification;
-pub mod runtime;
+pub mod policy;
 pub mod recovery;
-pub mod devtools;
-	
+pub mod runtime;
+pub mod sdk;
+pub mod security;
+pub mod service;
+pub mod task;
+pub mod verification;
+
 use command::dispatcher::Dispatcher;
 use kernel::kernel::IKernel;
 

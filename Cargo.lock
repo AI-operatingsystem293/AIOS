@@ -15,7 +15,7 @@ dependencies = [
 [[package]]
 name = "aios-sdk"
 version = "0.1.0"
-source = "git+https://github.com/AI-operatingsystem293/aios-sdk.git#6cd63d7343fcdbd14b49272e4685f3a21f547245"
+source = "git+https://github.com/AI-operatingsystem293/aios-sdk.git#645778fbfb034592952bbd339d24c26d25f47ecf"
 
 [[package]]
 name = "cfg-if"

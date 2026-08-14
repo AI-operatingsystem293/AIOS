@@ -1,6 +1,5 @@
 #[derive(Clone, Debug)]
 pub enum SchedulingStrategy {
-
     LowestLatency,
 
     HighestReliability,

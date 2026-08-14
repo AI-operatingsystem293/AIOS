@@ -10,9 +10,7 @@ pub struct TaskGraph {
 
 impl TaskGraph {
     pub fn new() -> Self {
-        Self {
-            edges: Vec::new(),
-        }
+        Self { edges: Vec::new() }
     }
 
     pub fn add_edge(&mut self, parent: u64, child: u64) {

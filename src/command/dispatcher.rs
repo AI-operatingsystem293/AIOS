@@ -1,370 +1,170 @@
-use crate::{
-    kernel::kernel::IKernel,
-    master::request::MasterRequest,
-};
-
+use crate::{kernel::kernel::IKernel, master::request::MasterRequest};
 
 pub struct Dispatcher<'a> {
-
     kernel: &'a mut IKernel,
-
 }
 
-
 impl<'a> Dispatcher<'a> {
-
-
-    pub fn new(
-        kernel: &'a mut IKernel,
-    ) -> Self {
-
-        Self {
-            kernel,
-        }
-
+    pub fn new(kernel: &'a mut IKernel) -> Self {
+        Self { kernel }
     }
 
-
-
-    pub fn dispatch(
-        &mut self,
-        input: &str,
-    ) -> bool {
-
-
+    pub fn dispatch(&mut self, input: &str) -> bool {
         let input = input.trim();
 
-
         if input.is_empty() {
-
             return true;
-
         }
 
+        let mut parts = input.splitn(2, ' ');
 
+        let command = parts.next().unwrap_or("");
 
-        let mut parts =
-            input.splitn(2, ' ');
-
-
-
-        let command =
-            parts.next()
-            .unwrap_or("");
-
-
-
-        let args =
-            parts.next()
-            .unwrap_or("");
-
-
-
+        let args = parts.next().unwrap_or("");
 
         match command {
-
-
-
             "help" => {
-
                 Self::help();
 
                 true
-
             }
-
-
 
             "version" => {
-
-                println!(
-                    "AIOS v0.0.2 Foundation"
-                );
+                println!("AIOS v0.0.2 Foundation");
 
                 true
-
             }
-
-
 
             "agents" => {
-
-                self.kernel
-                    .registry()
-                    .lock()
-                    .unwrap()
-                    .list_agents();
+                self.kernel.registry().lock().unwrap().list_agents();
 
                 true
-
             }
-
-
 
             "install" => {
+                println!("Plugin installation is handled through the plugins/ directory.");
 
-                println!(
-                   "Plugin installation is handled through the plugins/ directory."
-                );
-
-                println!(
-                   "Copy your .so agent into plugins/ and restart AIOS."
-                );
+                println!("Copy your .so agent into plugins/ and restart AIOS.");
 
                 true
-
             }
-
 
             "services" => {
-
-                self.kernel
-                    .services()
-                    .list();
-
+                self.kernel.services().list();
 
                 true
-
             }
-
-
 
             "memory" => {
-
-
                 self.memory_command(args);
 
-
                 true
-
             }
-
-
 
             "new-agent" => {
-
-
-                let parts:
-                    Vec<&str> =
-                    args.split_whitespace()
-                    .collect();
-
-
+                let parts: Vec<&str> = args.split_whitespace().collect();
 
                 if parts.is_empty() {
-
-
-                    println!(
-                        "Usage: new-agent <name>"
-                    );
-
+                    println!("Usage: new-agent <name>");
 
                     return true;
-
                 }
 
-
-
-                match crate::devtools::generator::AgentGenerator::create(
-                    parts[0]
-                ) {
-
-
+                match crate::devtools::generator::AgentGenerator::create(parts[0]) {
                     Ok(_) => {
-
-                        println!(
-                            "✓ Agent template created"
-                        );
+                        println!("✓ Agent template created");
 
                         true
-
                     }
-
-
 
                     Err(e) => {
-
-                        println!(
-                            "Generator error: {}",
-                            e
-                        );
+                        println!("Generator error: {}", e);
 
                         false
-
                     }
-
                 }
-
-
             }
-
-
 
             "exit" => {
-
-
-                println!(
-                    "Shutting down AIOS..."
-                );
-
+                println!("Shutting down AIOS...");
 
                 false
-
             }
-
-
 
             _ => {
- 
-              let registry = self.kernel.registry();
+                // First try a registered capability/command.
+                let registry = self.kernel.registry();
 
-              let result = {
-                 let mut registry =
-                     registry
-                        .lock()
-                        .unwrap();
+                let result = {
+                    let mut registry = registry.lock().unwrap();
 
-                 registry.execute_command(
-                     command,
-                     args,
-                 )
-              };
+                    registry.execute_command(command, args)
+                };
 
-              if let Some(output) = result {
-
-              println!("{}", output);
-
-              return true;
-
-              }
-
-              let request =
-                  MasterRequest::new(input);
-
-              let response =
-                  self.kernel.execute_master(request);
-
-              println!();
-              println!("{}", response.output);
-
-              true
-
-           }
-       }
-   }
-
-    fn memory_command(
-        &self,
-        args: &str,
-    ) {
-
-
-        let parts:
-            Vec<&str> =
-            args.split_whitespace()
-            .collect();
-
-
-
-        if parts.is_empty() {
-
-
-            println!(
-                "memory list"
-            );
-
-
-            println!(
-                "memory get <key>"
-            );
-
-
-            return;
-
-        }
-
-
-
-
-        match parts[0] {
-
-
-            "list" => {
-
-
-                self.kernel
-                    .memory()
-                    .list();
-
-            }
-
-
-
-            "get" => {
-
-
-                if parts.len() != 2 {
-
-
-                    println!(
-                        "Usage: memory get <key>"
-                    );
-
-
-                    return;
-
+                if let Some(output) = result {
+                    println!("{}", output);
+                    return true;
                 }
 
+                // ---------------------------------------------------------
+                // NATURAL LANGUAGE MODE
+                //
+                // Natural-language requests go through the Master.
+                // The Planner decides which capabilities are required.
+                //
+                // ---------------------------------------------------------
 
+                let request = MasterRequest::new(input);
+                let response = self.kernel.execute_master(request);
 
-                match self.kernel.memory().get(parts[1]) {
+                println!();
+                println!("{}", response.output);
 
-
-                    Some(v) => println!(
-                        "{}",
-                        v
-                    ),
-
-
-
-                    None => println!(
-                        "Not found"
-                    ),
-
-                }
-
-
+                true
             }
-
-
-
-            _ => {
-
-
-                println!(
-                    "Unknown memory command"
-                );
-
-            }
-
-
         }
-
     }
 
+    fn memory_command(&self, args: &str) {
+        let parts: Vec<&str> = args.split_whitespace().collect();
 
+        if parts.is_empty() {
+            println!("memory list");
 
+            println!("memory get <key>");
 
+            return;
+        }
+
+        match parts[0] {
+            "list" => {
+                self.kernel.memory().list();
+            }
+
+            "get" => {
+                if parts.len() != 2 {
+                    println!("Usage: memory get <key>");
+
+                    return;
+                }
+
+                match self.kernel.memory().get(parts[1]) {
+                    Some(v) => println!("{}", v),
+
+                    None => println!("Not found"),
+                }
+            }
+
+            _ => {
+                println!("Unknown memory command");
+            }
+        }
+    }
 
     fn help() {
-
-
         println!();
 
-        println!(
-            "========== AIOS HELP =========="
-        );
-
+        println!("========== AIOS HELP ==========");
 
         println!("help");
 
@@ -388,14 +188,8 @@ impl<'a> Dispatcher<'a> {
 
         println!("exit");
 
-
-        println!(
-            "==============================="
-        );
-
+        println!("===============================");
 
         println!();
-
     }
-
 }

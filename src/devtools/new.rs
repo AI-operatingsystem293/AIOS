@@ -1,39 +1,17 @@
 use std::fs;
 
-
 pub struct NewAgent;
 
-
 impl NewAgent {
+    pub fn create(name: &str) -> std::io::Result<()> {
+        let path = format!("plugins/{}", name);
 
-
-    pub fn create(
-        name: &str,
-    ) -> std::io::Result<()> {
-
-
-        let path =
-            format!(
-                "plugins/{}",
-                name
-            );
-
-
-        fs::create_dir_all(
-            format!(
-                "{}/src",
-                path
-            )
-        )?;
-
+        fs::create_dir_all(format!("{}/src", path))?;
 
         fs::write(
+            format!("{}/manifest.toml", path),
             format!(
-                "{}/manifest.toml",
-                path
-            ),
-            format!(
-r#"name = "{}"
+                r#"name = "{}"
 version = "0.1.0"
 author = "Developer"
 description = "AIOS Agent Plugin"
@@ -42,18 +20,13 @@ capabilities = [
     "{}"
 ]
 "#,
-                name,
-                name
-            )
+                name, name
+            ),
         )?;
 
-
         fs::write(
-            format!(
-                "{}/Cargo.toml",
-                path
-            ),
-r#"[package]
+            format!("{}/Cargo.toml", path),
+            r#"[package]
 name = "agent_plugin"
 version = "0.1.0"
 edition = "2021"
@@ -63,21 +36,15 @@ crate-type = ["cdylib"]
 
 [dependencies]
 aios = { path = "../.." }
-"#
+"#,
         )?;
 
-
-        let struct_name =
-            Self::to_struct_name(name);
-
+        let struct_name = Self::to_struct_name(name);
 
         fs::write(
+            format!("{}/src/lib.rs", path),
             format!(
-                "{}/src/lib.rs",
-                path
-            ),
-            format!(
-r#"use aios::sdk::agent::Agent;
+                r#"use aios::sdk::agent::Agent;
 
 
 pub struct {};
@@ -100,52 +67,26 @@ impl Agent for {{
 
 }}
 "#,
-                struct_name,
-                name
-            )
+                struct_name, name
+            ),
         )?;
 
-
-        println!(
-            "✓ Created agent plugin: {}",
-            name
-        );
-
+        println!("✓ Created agent plugin: {}", name);
 
         Ok(())
-
     }
 
-
-
-    fn to_struct_name(
-        name: &str,
-    ) -> String {
-
-        name
-            .split('_')
+    fn to_struct_name(name: &str) -> String {
+        name.split('_')
             .map(|part| {
-
-                let mut chars =
-                    part.chars();
+                let mut chars = part.chars();
 
                 match chars.next() {
-
-                    Some(first) => {
-
-                        first.to_uppercase()
-                            .collect::<String>()
-                            + chars.as_str()
-
-                    }
+                    Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
 
                     None => String::new(),
-
                 }
-
             })
             .collect()
-
     }
-
 }

@@ -1,8 +1,5 @@
 use crate::sdk::{
-    agent::Agent,
-    manifest::AgentManifest,
-    request::AgentRequest,
-    response::AgentResponse,
+    agent::Agent, manifest::AgentManifest, request::AgentRequest, response::AgentResponse,
 };
 
 pub struct EchoAgent;
@@ -19,17 +16,11 @@ impl Agent for EchoAgent {
             .name("Echo Agent")
             .version("1.0.0")
             .author("AIOS")
-            .description("Echoes input")
+            .description("Echoes input back to the caller")
             .capability("echo")
     }
 
-    fn execute(
-        &mut self,
-        request: AgentRequest,
-    ) -> AgentResponse {
-        AgentResponse::success(
-            request.task_id,
-            &request.input,
-        )
+    fn execute(&mut self, request: AgentRequest) -> AgentResponse {
+        AgentResponse::success(request.task_id, &request.input)
     }
 }

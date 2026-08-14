@@ -1,7 +1,4 @@
-use crate::event::{
-    event::Event,
-    listener::EventListener,
-};
+use crate::event::{event::Event, listener::EventListener};
 
 pub struct LoggerListener;
 
@@ -12,10 +9,7 @@ impl LoggerListener {
 }
 
 impl EventListener for LoggerListener {
-    fn on_event(
-        &mut self,
-        event: &Event,
-    ) {
+    fn on_event(&mut self, event: &Event) {
         println!("[EVENT] {:?}", event);
     }
 }

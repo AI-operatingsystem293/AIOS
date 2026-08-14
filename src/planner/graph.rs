@@ -7,11 +7,7 @@ pub struct TaskNode {
 }
 
 impl TaskNode {
-    pub fn new(
-        id: u64,
-        name: &str,
-        capability: &str,
-    ) -> Self {
+    pub fn new(id: u64, name: &str, capability: &str) -> Self {
         Self {
             id,
             name: name.to_string(),
@@ -20,10 +16,7 @@ impl TaskNode {
         }
     }
 
-    pub fn depends_on(
-        mut self,
-        task_id: u64,
-    ) -> Self {
+    pub fn depends_on(mut self, task_id: u64) -> Self {
         self.dependencies.push(task_id);
         self
     }
@@ -35,15 +28,10 @@ pub struct TaskGraph {
 
 impl TaskGraph {
     pub fn new() -> Self {
-        Self {
-            nodes: Vec::new(),
-        }
+        Self { nodes: Vec::new() }
     }
 
-    pub fn add(
-        &mut self,
-        node: TaskNode,
-    ) {
+    pub fn add(&mut self, node: TaskNode) {
         self.nodes.push(node);
     }
 
@@ -56,12 +44,7 @@ impl TaskGraph {
         println!("======= TASK GRAPH =======");
 
         for node in &self.nodes {
-            println!(
-                "#{} {} [{}]",
-                node.id,
-                node.name,
-                node.capability
-            );
+            println!("#{} {} [{}]", node.id, node.name, node.capability);
 
             if !node.dependencies.is_empty() {
                 print!("  Depends on: ");

@@ -8,7 +8,6 @@ impl MemoryStorage {
     }
 
     pub fn load() -> String {
-        read_to_string("memory.db")
-            .unwrap_or_default()
+        read_to_string("memory.db").unwrap_or_default()
     }
 }

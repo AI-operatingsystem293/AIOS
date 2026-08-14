@@ -7,10 +7,7 @@ impl DependencyBuilder {
         Self
     }
 
-    pub fn build(
-        &self,
-        _tasks: &mut Vec<Task>,
-    ) {
+    pub fn build(&self, _tasks: &mut Vec<Task>) {
         // Future:
         // Analyze task dependencies.
         // Detect tasks that can execute in parallel.
