@@ -1,7 +1,4 @@
-use crate::{
-    capability::provider::Provider,
-    planner::goal::Goal,
-};
+use crate::{capability::provider::Provider, planner::goal::Goal};
 
 #[derive(Clone, Debug)]
 pub struct PlanningDecision {
@@ -17,11 +14,7 @@ impl Reasoner {
         Self
     }
 
-    pub fn reason(
-        &self,
-        goal: &Goal,
-        providers: &[Provider],
-    ) -> Vec<PlanningDecision> {
+    pub fn reason(&self, goal: &Goal, providers: &[Provider]) -> Vec<PlanningDecision> {
         let request = goal.description.to_lowercase();
 
         let mut scored: Vec<(u32, &Provider)> = providers
@@ -40,14 +33,8 @@ impl Reasoner {
 
         scored.sort_by(|a, b| {
             b.0.cmp(&a.0)
-                .then_with(|| {
-                    a.1.running_tasks
-                        .cmp(&b.1.running_tasks)
-                })
-                .then_with(|| {
-                    a.1.average_latency_ms
-                        .cmp(&b.1.average_latency_ms)
-                })
+                .then_with(|| a.1.running_tasks.cmp(&b.1.running_tasks))
+                .then_with(|| a.1.average_latency_ms.cmp(&b.1.average_latency_ms))
         });
 
         /*
@@ -111,10 +98,7 @@ impl Reasoner {
         decisions
     }
 
-    fn score_provider(
-        provider: &Provider,
-        request: &str,
-    ) -> u32 {
+    fn score_provider(provider: &Provider, request: &str) -> u32 {
         let capability = normalize(&provider.capability);
         let description = normalize(&provider.description);
 
@@ -153,10 +137,7 @@ impl Reasoner {
             let keyword = normalize(keyword);
 
             for token in &request_tokens {
-                if keyword
-                    .split_whitespace()
-                    .any(|word| related(word, token))
-                {
+                if keyword.split_whitespace().any(|word| related(word, token)) {
                     score += 35;
                 }
             }
@@ -186,13 +167,9 @@ impl Reasoner {
          */
         score += provider.success_count.min(20) as u32;
 
-        score = score.saturating_sub(
-            provider.failure_count.min(20) as u32 * 5,
-        );
+        score = score.saturating_sub(provider.failure_count.min(20) as u32 * 5);
 
-        score = score.saturating_sub(
-            provider.running_tasks * 2,
-        );
+        score = score.saturating_sub(provider.running_tasks * 2);
 
         score
     }
@@ -238,14 +215,12 @@ fn is_arithmetic_expression(request: &str) -> bool {
     let has_number = request.chars().any(|c| c.is_ascii_digit());
 
     has_number
-        && (
-            contains_addition(request)
-                || contains_subtraction(request)
-                || contains_multiplication(request)
-                || contains_division(request)
-                || contains_percentage(request)
-                || contains_power(request)
-        )
+        && (contains_addition(request)
+            || contains_subtraction(request)
+            || contains_multiplication(request)
+            || contains_division(request)
+            || contains_percentage(request)
+            || contains_power(request))
 }
 
 fn contains_addition(request: &str) -> bool {
@@ -268,7 +243,7 @@ fn contains_multiplication(request: &str) -> bool {
         || request.contains(" multiply ")
         || request.contains(" multiplied ")
         || request.contains(" times ")
-    }
+}
 
 fn contains_division(request: &str) -> bool {
     request.contains('/')
@@ -279,9 +254,7 @@ fn contains_division(request: &str) -> bool {
 }
 
 fn contains_percentage(request: &str) -> bool {
-    request.contains('%')
-        || request.contains(" percent ")
-        || request.contains(" percentage ")
+    request.contains('%') || request.contains(" percent ") || request.contains(" percentage ")
 }
 
 fn contains_power(request: &str) -> bool {

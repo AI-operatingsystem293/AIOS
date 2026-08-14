@@ -37,20 +37,12 @@ impl ProviderRegistry {
         crate::capability::resolver::CapabilityResolver::new().resolve_request(self, request)
     }
 
-    pub fn backup_provider(
-    &self,
-    capability: &str,
-    failed_agent: &str,
-) -> Option<&Provider> {
-    self.providers
-        .iter()
-        .filter(|p| {
-            p.capability == capability
-                && p.healthy
-                && p.agent_id != failed_agent
-        })
-        .max_by_key(|p| CapabilityScore::calculate(p))
-}
+    pub fn backup_provider(&self, capability: &str, failed_agent: &str) -> Option<&Provider> {
+        self.providers
+            .iter()
+            .filter(|p| p.capability == capability && p.healthy && p.agent_id != failed_agent)
+            .max_by_key(|p| CapabilityScore::calculate(p))
+    }
 
     pub fn mark_success(&mut self, agent: &str) {
         if let Some(provider) = self.providers.iter_mut().find(|p| p.agent_id == agent) {

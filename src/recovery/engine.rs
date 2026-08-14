@@ -18,39 +18,22 @@ impl RecoveryEngine {
         println!();
         println!("========== RECOVERY ENGINE ==========");
 
-        let policy = self.choose_policy(
-            providers,
-            capability,
-            failed_agent,
-        );
+        let policy = self.choose_policy(providers, capability, failed_agent);
 
         match policy {
             RecoveryPolicy::RetrySameAgent => {
-                println!(
-                    "Recovery: retrying agent '{}'",
-                    failed_agent
-                );
+                println!("Recovery: retrying agent '{}'", failed_agent);
 
                 RecoveryResult::Retry
             }
 
             RecoveryPolicy::TryAnotherAgent => {
-                println!(
-                    "Recovery: switching to another '{}' provider.",
-                    capability
-                );
+                println!("Recovery: switching to another '{}' provider.", capability);
 
                 if let Some(provider) =
-                    self.find_backup_provider(
-                        providers,
-                        capability,
-                        failed_agent,
-                    )
+                    self.find_backup_provider(providers, capability, failed_agent)
                 {
-                    println!(
-                        "Selected backup agent: {}",
-                        provider.agent_id
-                    );
+                    println!("Selected backup agent: {}", provider.agent_id);
 
                     RecoveryResult::Recovered
                 } else {
@@ -94,8 +77,7 @@ impl RecoveryEngine {
         }
 
         let same_agent = providers.iter().find(|provider| {
-            provider.agent_id == failed_agent
-                && provider.capability == capability
+            provider.agent_id == failed_agent && provider.capability == capability
         });
 
         if let Some(provider) = same_agent {

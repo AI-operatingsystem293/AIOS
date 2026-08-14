@@ -1,8 +1,5 @@
 use crate::sdk::{
-    agent::Agent,
-    manifest::AgentManifest,
-    request::AgentRequest,
-    response::AgentResponse,
+    agent::Agent, manifest::AgentManifest, request::AgentRequest, response::AgentResponse,
 };
 
 pub struct MathAgent;
@@ -81,9 +78,7 @@ impl MathAgent {
                     let value = parse_number(parts.next())?;
 
                     if parts.next().is_some() {
-                        return Err(
-                            "Usage: percent <percentage> <value>".to_string()
-                        );
+                        return Err("Usage: percent <percentage> <value>".to_string());
                     }
 
                     return Ok(format_number((percent / 100.0) * value));
@@ -147,11 +142,7 @@ impl MathAgent {
                     a / b
                 }
                 "%" => a % b,
-                _ => {
-                    return Err(
-                        "Unsupported mathematical operator.".to_string()
-                    )
-                }
+                _ => return Err("Unsupported mathematical operator.".to_string()),
             };
 
             return Ok(format_number(result));
@@ -162,10 +153,7 @@ impl MathAgent {
          *
          * 25% of 800
          */
-        if tokens.len() == 4
-            && tokens[1] == "%"
-            && tokens[2].eq_ignore_ascii_case("of")
-        {
+        if tokens.len() == 4 && tokens[1] == "%" && tokens[2].eq_ignore_ascii_case("of") {
             let percent = tokens[0]
                 .parse::<f64>()
                 .map_err(|_| "Invalid percentage.".to_string())?;
@@ -183,68 +171,62 @@ impl MathAgent {
 
 impl Agent for MathAgent {
     fn manifest(&self) -> AgentManifest {
-    AgentManifest::new()
-        .name("Math Agent")
-        .version("2.0.0")
-        .author("AIOS")
-        .description(
-            "Performs arithmetic calculations and solves mathematical expressions, \
+        AgentManifest::new()
+            .name("Math Agent")
+            .version("2.0.0")
+            .author("AIOS")
+            .description(
+                "Performs arithmetic calculations and solves mathematical expressions, \
              including addition, subtraction, multiplication, division, percentages, \
              powers, and numerical calculations.",
-        )
-        .keywords([
-            "math",
-            "mathematics",
-            "arithmetic",
-            "calculate",
-            "calculation",
-            "number",
-            "numbers",
-            "add",
-            "addition",
-            "plus",
-            "subtract",
-            "subtraction",
-            "minus",
-            "multiply",
-            "multiplication",
-            "multiplied",
-            "times",
-            "divide",
-            "division",
-            "divided",
-            "percentage",
-            "percent",
-            "power",
-            "exponent",
-            "expression",
-            "+",
-            "-",
-            "*",
-            "/",
-            "%",
-            "^",
-        ])
-        .capability("math")
-        .capability("add")
-        .capability("subtract")
-        .capability("multiply")
-        .capability("divide")
-        .capability("percentage")
-        .capability("power")
-        }
+            )
+            .keywords([
+                "math",
+                "mathematics",
+                "arithmetic",
+                "calculate",
+                "calculation",
+                "number",
+                "numbers",
+                "add",
+                "addition",
+                "plus",
+                "subtract",
+                "subtraction",
+                "minus",
+                "multiply",
+                "multiplication",
+                "multiplied",
+                "times",
+                "divide",
+                "division",
+                "divided",
+                "percentage",
+                "percent",
+                "power",
+                "exponent",
+                "expression",
+                "+",
+                "-",
+                "*",
+                "/",
+                "%",
+                "^",
+            ])
+            .capability("math")
+            .capability("add")
+            .capability("subtract")
+            .capability("multiply")
+            .capability("divide")
+            .capability("percentage")
+            .capability("power")
+    }
 
     fn execute(&mut self, request: AgentRequest) -> AgentResponse {
         match self.calculate(&request.input) {
-            Ok(result) => AgentResponse::success(
-                request.task_id,
-                &result,
-            ),
+            Ok(result) => AgentResponse::success(request.task_id, &result),
 
-            Err(error) => AgentResponse::error(
-                request.task_id,
-                &error,
-            ),
+            Err(error) => AgentResponse::error(request.task_id, &error),
         }
     }
 }

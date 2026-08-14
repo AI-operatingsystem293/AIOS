@@ -90,14 +90,14 @@ impl IKernel {
     }
 
     pub fn execute_master(
-    &mut self,
-    request: crate::master::request::MasterRequest,
-) -> crate::master::response::MasterResponse {
-    self.plugin_manager
-        .watch_dynamic_plugins(&mut self.registry.lock().unwrap());
+        &mut self,
+        request: crate::master::request::MasterRequest,
+    ) -> crate::master::response::MasterResponse {
+        self.plugin_manager
+            .watch_dynamic_plugins(&mut self.registry.lock().unwrap());
 
-    self.master.execute(request, self.registry.clone())
-}
+        self.master.execute(request, self.registry.clone())
+    }
 
     pub fn master_mut(&mut self) -> &mut MasterAgent {
         &mut self.master

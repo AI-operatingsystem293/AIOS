@@ -1,18 +1,9 @@
 use crate::{
     capability::resolver::CapabilityResolver,
     kernel::registry::AgentRegistry,
-    recovery::{
-        engine::RecoveryEngine,
-        result::RecoveryResult,
-    },
-    runtime::{
-        message::ExecutionJob,
-        pool::WorkerPool,
-    },
-    task::{
-        manager::TaskManager,
-        status::TaskStatus,
-    },
+    recovery::{engine::RecoveryEngine, result::RecoveryResult},
+    runtime::{message::ExecutionJob, pool::WorkerPool},
+    task::{manager::TaskManager, status::TaskStatus},
 };
 
 pub struct TaskScheduler {
@@ -25,10 +16,10 @@ impl TaskScheduler {
     }
 
     pub fn tick(
-    &self,
-    manager: &mut TaskManager,
-    registry: std::sync::Arc<std::sync::Mutex<AgentRegistry>>,
-) {
+        &self,
+        manager: &mut TaskManager,
+        registry: std::sync::Arc<std::sync::Mutex<AgentRegistry>>,
+    ) {
         let recovery = RecoveryEngine::new();
 
         loop {
@@ -51,10 +42,7 @@ impl TaskScheduler {
             }
 
             println!();
-            println!(
-                "Parallel Scheduler: {} task(s) ready",
-                selected_tasks.len()
-            );
+            println!("Parallel Scheduler: {} task(s) ready", selected_tasks.len());
 
             /*
              * Resolve ONLY the capability requested by the planner.
@@ -68,35 +56,25 @@ impl TaskScheduler {
                 let resolver = CapabilityResolver::new();
 
                 let provider = {
-    let registry = registry.lock().unwrap();
+                    let registry = registry.lock().unwrap();
 
-    resolver
-        .resolve(registry.providers(), &task.command)
-        .map(|provider| {
-            (
-                provider.agent_id.clone(),
-                provider.capability.clone(),
-            )
-        })
-};
+                    resolver
+                        .resolve(registry.providers(), &task.command)
+                        .map(|provider| (provider.agent_id.clone(), provider.capability.clone()))
+                };
 
                 match provider {
                     Some((agent, capability)) => {
                         task.assigned_agent = Some(agent.clone());
                         task.command = capability;
 
-                        println!(
-                            "Task #{} -> Agent {}",
-                            task.id,
-                            agent
-                        );
+                        println!("Task #{} -> Agent {}", task.id, agent);
                     }
 
                     None => {
                         println!(
                             "Task #{} -> no provider for capability '{}'",
-                            task.id,
-                            task.command
+                            task.id, task.command
                         );
 
                         task.status = TaskStatus::Failed;
@@ -123,10 +101,7 @@ impl TaskScheduler {
 
                 task.status = TaskStatus::Running;
 
-                println!(
-                    "Submitting Task #{}",
-                    task.id
-                );
+                println!("Submitting Task #{}", task.id);
 
                 let job = ExecutionJob {
                     task_id: task.id,
@@ -143,19 +118,9 @@ impl TaskScheduler {
              * Collect worker results.
              */
             for _ in 0..submitted {
-                let result = {
-                    self.pool
-                        .results
-                        .lock()
-                        .unwrap()
-                        .recv()
-                        .unwrap()
-                };
+                let result = { self.pool.results.lock().unwrap().recv().unwrap() };
 
-                println!(
-                    "Worker completed Task #{}",
-                    result.task_id
-                );
+                println!("Worker completed Task #{}", result.task_id);
 
                 let task = manager
                     .tasks
@@ -175,48 +140,39 @@ impl TaskScheduler {
                 task.status = TaskStatus::Failed;
 
                 let outcome = {
-    let registry = registry.lock().unwrap();
+                    let registry = registry.lock().unwrap();
 
-    recovery.recover(
-        registry.providers().providers(),
-        &task.command,
-        task.assigned_agent
-            .as_deref()
-            .unwrap_or("unknown"),
-    )
-};
+                    recovery.recover(
+                        registry.providers().providers(),
+                        &task.command,
+                        task.assigned_agent.as_deref().unwrap_or("unknown"),
+                    )
+                };
 
                 match outcome {
-                    RecoveryResult::Retry
-                    | RecoveryResult::Recovered => {
+                    RecoveryResult::Retry | RecoveryResult::Recovered => {
                         task.retry_count += 1;
 
                         println!(
                             "Recovery retry attempt {}/3 for Task #{}",
-                            task.retry_count,
-                            task.id
+                            task.retry_count, task.id
                         );
 
                         if task.retry_count >= 3 {
                             task.status = TaskStatus::Failed;
 
-                            task.result = Some(
-                                "Maximum recovery attempts reached"
-                                    .to_string(),
-                            );
+                            task.result = Some("Maximum recovery attempts reached".to_string());
                         } else {
                             task.status = TaskStatus::Pending;
                         }
                     }
 
                     RecoveryResult::Replanned => {
-                        task.result =
-                            Some("Needs replanning".to_string());
+                        task.result = Some("Needs replanning".to_string());
                     }
 
                     RecoveryResult::Failed => {
-                        task.result =
-                            Some("Recovery failed".to_string());
+                        task.result = Some("Recovery failed".to_string());
                     }
                 }
             }

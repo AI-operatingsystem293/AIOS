@@ -1,4 +1,9 @@
 use crate::{kernel::kernel::IKernel, master::request::MasterRequest};
+use std::env;
+use std::process::Command;
+
+#[cfg(unix)]
+use std::os::unix::process::CommandExt;
 
 pub struct Dispatcher<'a> {
     kernel: &'a mut IKernel,
@@ -7,6 +12,85 @@ pub struct Dispatcher<'a> {
 impl<'a> Dispatcher<'a> {
     pub fn new(kernel: &'a mut IKernel) -> Self {
         Self { kernel }
+    }
+
+    fn update() {
+        println!();
+        println!("========== AIOS UPDATE ==========");
+        println!("Downloading latest AIOS release...");
+
+        let exe = match env::current_exe() {
+            Ok(path) => path,
+            Err(e) => {
+                println!("✗ Cannot locate AIOS executable: {}", e);
+                return;
+            }
+        };
+
+        let tmp = exe.with_extension("update");
+
+        let url = "https://github.com/AI-operatingsystem293/AIOS/releases/download/v0.6.0/aios-linux-aarch64";
+
+        let download = Command::new("curl")
+            .args(["-fL", url, "-o"])
+            .arg(&tmp)
+            .status();
+
+        match download {
+            Ok(status) if status.success() => {
+                println!("✓ Latest AIOS downloaded");
+            }
+            Ok(status) => {
+                println!("✗ Download failed: {}", status);
+                let _ = std::fs::remove_file(&tmp);
+                return;
+            }
+            Err(e) => {
+                println!("✗ Failed to run curl: {}", e);
+                let _ = std::fs::remove_file(&tmp);
+                return;
+            }
+        }
+
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+
+            if let Err(e) = std::fs::set_permissions(
+                &tmp,
+                std::fs::Permissions::from_mode(0o755),
+            ) {
+                println!("✗ Cannot make updated AIOS executable: {}", e);
+                let _ = std::fs::remove_file(&tmp);
+                return;
+            }
+        }
+
+        println!("✓ Installing update...");
+
+        if let Err(e) = std::fs::rename(&tmp, &exe) {
+            println!("✗ Cannot install update: {}", e);
+            let _ = std::fs::remove_file(&tmp);
+            return;
+        }
+
+        println!("✓ AIOS updated successfully");
+        println!("Starting updated AIOS...");
+        println!();
+
+        #[cfg(unix)]
+        {
+            let err = Command::new(&exe).exec();
+            println!("✗ Failed to restart AIOS: {}", err);
+        }
+
+        #[cfg(not(unix))]
+        {
+            match Command::new(&exe).status() {
+                Ok(_) => {}
+                Err(e) => println!("✗ Failed to restart AIOS: {}", e),
+            }
+        }
     }
 
     pub fn dispatch(&mut self, input: &str) -> bool {
@@ -34,6 +118,11 @@ impl<'a> Dispatcher<'a> {
 
                 true
             }
+ 
+            "update" => {
+    Self::update();
+    true
+}
 
             "agents" => {
                 self.kernel.registry().lock().unwrap().list_agents();
@@ -84,6 +173,7 @@ impl<'a> Dispatcher<'a> {
                     }
                 }
             }
+
 
             "exit" => {
                 println!("Shutting down AIOS...");
@@ -169,6 +259,8 @@ impl<'a> Dispatcher<'a> {
         println!("help");
 
         println!("version");
+
+        println!("update");
 
         println!("agents");
 

@@ -21,15 +21,8 @@ impl DefaultRule {
         }
     }
 
-    fn decisions(
-        &self,
-        goal: &Goal,
-        registry: &ProviderRegistry,
-    ) -> Vec<PlanningDecision> {
-        self.reasoner.reason(
-            goal,
-            registry.providers(),
-        )
+    fn decisions(&self, goal: &Goal, registry: &ProviderRegistry) -> Vec<PlanningDecision> {
+        self.reasoner.reason(goal, registry.providers())
     }
 }
 
@@ -43,22 +36,16 @@ impl PlanningRule for DefaultRule {
     }
 
     fn expand(&self, goal: &Goal) -> Vec<Task> {
-        vec![
-            Task::new(
-                1,
-                None,
-                "general_reasoning".to_string(),
-                goal.description.clone(),
-                1,
-            ),
-        ]
+        vec![Task::new(
+            1,
+            None,
+            "general_reasoning".to_string(),
+            goal.description.clone(),
+            1,
+        )]
     }
 
-    fn build_plan_with_registry(
-        &self,
-        goal: &Goal,
-        registry: &ProviderRegistry,
-    ) -> Plan {
+    fn build_plan_with_registry(&self, goal: &Goal, registry: &ProviderRegistry) -> Plan {
         let decisions = self.decisions(goal, registry);
 
         let mut plan = Plan::new();
