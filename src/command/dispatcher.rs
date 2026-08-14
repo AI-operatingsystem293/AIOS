@@ -30,7 +30,7 @@ impl<'a> Dispatcher<'a> {
             }
 
             "version" => {
-                println!("AIOS v0.0.2 Foundation");
+                println!("AIOS v0.6.0 Foundation");
 
                 true
             }

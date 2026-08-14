@@ -25,7 +25,7 @@ use kernel::kernel::IKernel;
 
 fn main() {
     println!("====================================");
-    println!(" AIOS Intelligence Kernel v0.5.0");
+    println!(" AIOS Intelligence Kernel v0.6.0");
     println!(" Codename: MVP");
     println!("====================================");
 
